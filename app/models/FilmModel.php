@@ -20,6 +20,7 @@ class FilmModel
     private PDOStatement $add_film;
     private PDOStatement $get_all_films;
     private PDOStatement $get_film_by_id;
+    private PDOStatement $verifyIfFilmAlreadyExist;
 
 
     function __construct()
@@ -30,25 +31,53 @@ class FilmModel
         $this->add_film = $this->bdd->prepare("INSERT INTO `Film`(nom, date, genre,  realisateur, duree) VALUES (:nom, :date, :genre, :realisateur, :duree)");
         $this->get_all_films = $this->bdd->prepare("SELECT * FROM `Film LIMIT :limit");
         $this->get_film_by_id = $this->bdd->prepare("SELECT * FROM `Film`WHERE id = :id");
+        $this->verifyIfFilmAlreadyExist = $this->bdd->prepare("SELECT * FROM `Film`WHERE nom = :nom");
     }
 
+    // Renvoit True si le film existe deja
+    public function verifyIfFilmAlreadyExist($nom): bool
+    {
+        if (strlen($nom) <= 0) {
+            console("La recherche ne peut etre vide");
+            exit();
+        } else {
+            try {
+                $this->verifyIfFilmAlreadyExist->bindValue(":nom", $nom);
+                $this->verifyIfFilmAlreadyExist->execute();
+                $result = $this->verifyIfFilmAlreadyExist->fetch();
+            } catch (PDOException $e) {
+                console("Erreur lors de la recherche de film pae nom");
+                exit();
+            }
+            if ($result === false) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
     public function add_film(string $nom, DateTime $date, string $genre, string $realisateur, int $duree)
     {
-        // TODO - Verifier si le film n'existe pas deja dans la BDD
-        try {
-            $this->add_film->bindValue(":nom", $nom);
-            $this->add_film->bindValue(":date", $date->format('Y-m-d'));
-            $this->add_film->bindValue(":genre", $genre);
-            $this->add_film->bindValue(":realisateur", $realisateur);
-            $this->add_film->bindValue(":duree", $duree);
-            $this->add_film->execute();
-
-            // Message de succès
-            console("Film ajouté avec succès : $nom ($genre, $duree min)");
-        } catch (PDOException $e) {
-            // Message d'erreur
-            console("Erreur lors de l'ajout d'un film dans la BDD : " . $e->getMessage());
+        $filmAlreadyExist = $this->verifyIfFilmAlreadyExist($nom);
+        if ($filmAlreadyExist === true) {
+            console("Un film avec ce nom existe deja dans la BDD");
             exit();
+        } else {
+            try {
+                $this->add_film->bindValue(":nom", $nom);
+                $this->add_film->bindValue(":date", $date->format('Y-m-d'));
+                $this->add_film->bindValue(":genre", $genre);
+                $this->add_film->bindValue(":realisateur", $realisateur);
+                $this->add_film->bindValue(":duree", $duree);
+                $this->add_film->execute();
+
+                // Message de succès
+                console("Film ajouté avec succès : $nom ($genre, $duree min)");
+            } catch (PDOException $e) {
+                // Message d'erreur
+                console("Erreur lors de l'ajout d'un film dans la BDD : " . $e->getMessage());
+                exit();
+            }
         }
     }
 

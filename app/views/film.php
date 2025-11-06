@@ -1,0 +1,1 @@
+<h1>show film id : <?= $id ?></h1>
