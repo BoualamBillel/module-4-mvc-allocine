@@ -19,6 +19,7 @@ class FilmModel
     private PDO $bdd;
     private PDOStatement $add_film;
     private PDOStatement $get_all_films;
+    private PDOStatement $get_film_by_id;
 
 
     function __construct()
@@ -28,6 +29,7 @@ class FilmModel
         // Préparations des requetes préparés
         $this->add_film = $this->bdd->prepare("INSERT INTO `Film`(nom, date, genre,  realisateur, duree) VALUES (:nom, :date, :genre, :realisateur, :duree)");
         $this->get_all_films = $this->bdd->prepare("SELECT * FROM `Film LIMIT :limit");
+        $this->get_film_by_id = $this->bdd->prepare("SELECT * FROM `Film`WHERE id = :id");
     }
 
     public function add_film(string $nom, DateTime $date, string $genre, string $realisateur, int $duree)
@@ -83,6 +85,38 @@ class FilmModel
                 );
             }
             return $filmEntity;
+        }
+    }
+
+    public function get_film_by_id($id): FilmEntity
+    {
+        if ($id <= 0) {
+            console("L'id ne peut pas etre inférieur ou égal à 0");
+            exit();
+        } else {
+            try {
+                $this->get_film_by_id->bindValue(":id", $id);
+                $this->get_film_by_id->execute();
+                $rawFilm = $this->get_film_by_id->fetch();
+            } catch (PDOException $e) {
+                console("Erreur SQL lors de la récupération du film par ID : " . $e->getMessage());
+                exit();
+            }
+            if ($rawFilm === false) {
+                console("Aucun film trouvé avec cet id");
+                exit();
+            } else {
+                $film = new FilmEntity(
+                    $rawFilm['id'],
+                    $rawFilm['nom'],
+                    $rawFilm['date'],
+                    $rawFilm['genre'],
+                    $rawFilm['realisateur'],
+                    $rawFilm['duree']
+                );
+                return $film;
+            }
+
         }
     }
 
