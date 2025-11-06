@@ -21,6 +21,7 @@ class FilmModel
     private PDOStatement $get_all_films;
     private PDOStatement $get_film_by_id;
     private PDOStatement $verifyIfFilmAlreadyExist;
+    private PDOStatement $delete_film;
 
 
     function __construct()
@@ -32,6 +33,7 @@ class FilmModel
         $this->get_all_films = $this->bdd->prepare("SELECT * FROM `Film LIMIT :limit");
         $this->get_film_by_id = $this->bdd->prepare("SELECT * FROM `Film`WHERE id = :id");
         $this->verifyIfFilmAlreadyExist = $this->bdd->prepare("SELECT * FROM `Film`WHERE nom = :nom");
+        $this->delete_film = $this->bdd->prepare("DELETE * FROM `Film` WHERE id = :id");
     }
 
     // Renvoit True si le film existe deja
@@ -145,7 +147,22 @@ class FilmModel
                 );
                 return $film;
             }
+        }
+    }
 
+    public function delete_film($id) {
+        if ($id <= 0) {
+            console("L'id ne peut pas etre inférieur ou égal à 0");
+            exit();
+        } else {
+            try {
+                $this->delete_film->bindValue(":id", $id);
+                $this->delete_film->execute();
+                console("Film avec l'ID " . $id . " supprimé avec succès !");
+            } catch (PDOException $e) {
+                console("Erreur SQL lors de la suppresion d'un film");
+                exit();
+            }
         }
     }
 
