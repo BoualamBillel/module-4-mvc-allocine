@@ -25,7 +25,10 @@ class Database
                 );
                 console("Connexion BDD Crée");
             } catch (PDOException $e) {
+                
                 console("Erreur de connexion à la BDD : " . $e->getMessage());
+                console("SQL CODE n°".$e->getCode());
+
                 exit();
             }
         }
