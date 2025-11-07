@@ -9,9 +9,8 @@ class App {
         $uri_elements = explode("/", $uri);
 
         $controllerName = isset($uri_elements[1]) ? $uri_elements[1] : "";
-        $methodName = isset($uri_elements[2]) ? $uri_elements[2] : "";
+        $methodName = isset($uri_elements[2]) ? $uri_elements[2] : "index";
         $params = array_splice($uri_elements, 3);
-
         // Je recupere le controller
         $controller = Router::getController($controllerName);
 
