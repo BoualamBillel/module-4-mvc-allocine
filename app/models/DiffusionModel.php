@@ -9,6 +9,7 @@ class DiffusionModel
     private PDOStatement $addDiffusion;
     private PDOStatement $verifyIfDiffusionExist;
     private PDOStatement $deleteDiffusion;
+    private PDOStatement $getDiffusionInfo;
     public function __construct()
     {
         $this->bdd = Database::getInstance();
@@ -16,6 +17,7 @@ class DiffusionModel
         $this->addDiffusion = $this->bdd->prepare("INSERT INTO `Diffusion` (film_id, date_diffusion) VALUES (:film_id, :date_diffusion)");
         $this->verifyIfDiffusionExist = $this->bdd->prepare("SELECT * FROM `Diffusion` WHERE id = :id");
         $this->deleteDiffusion = $this->bdd->prepare("DELETE  FROM `Diffusion` WHERE id = :id");
+        $this->getDiffusionInfo = $this->bdd->prepare("SELECT * `Diffusion` WHERE film_id = :film_id");
 
     }
 
@@ -70,7 +72,6 @@ class DiffusionModel
 
     public function deleteDiffusion($id)
     {
-        // TODO 
         if ($id <= 0) {
             console("L'id de diffusion ne peut pas inférieur ou égal à 0");
             exit();
@@ -81,6 +82,28 @@ class DiffusionModel
         } catch (PDOException $e) {
             console("Erreur SQL lors de la suppresion de la diffusion " . $id . " : " . $e->getMessage());
             exit();
+        }
+    }
+
+    public function getDiffusionInfo($film_id) {
+         if ($film_id <= 0) {
+            console("L'id de diffusion ne peut pas inférieur ou égal à 0");
+            exit();
+        }
+        try {
+            $this->getDiffusionInfo->execute([
+                ":film_id" => $film_id
+            ]);
+           $result = $this->getDiffusionInfo->fetchAll();
+        } catch (PDOException $e) {
+            console("Erreur SQL lors de la récupération des infos de diffusion du film ID = ". $film_id . " : " . $e->getMessage());
+            exit();
+        }
+        if (!$result) {
+            console("Aucune diffusion trouvé");
+            return [];
+        } else {
+            return $result;
         }
     }
 }
