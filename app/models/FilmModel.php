@@ -36,7 +36,7 @@ class FilmModel
         $this->delete_film = $this->bdd->prepare("DELETE * FROM `Film` WHERE id = :id");
     }
 
-    // Renvoit True si le film existe deja
+    // Renvoit True si le film existe
     public function verifyIfFilmAlreadyExist(int $id): bool
     {
         if ($id <= 0) {
