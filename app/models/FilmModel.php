@@ -21,6 +21,7 @@ class FilmModel
     private PDOStatement $get_all_films;
     private PDOStatement $get_film_by_id;
     private PDOStatement $verifyIfFilmAlreadyExist;
+    private PDOStatement $verifyIfFilmAlreadyExistByName;
     private PDOStatement $delete_film;
 
 
@@ -33,7 +34,8 @@ class FilmModel
         $this->get_all_films = $this->bdd->prepare("SELECT * FROM `Film`");
         $this->get_film_by_id = $this->bdd->prepare("SELECT * FROM `Film`WHERE id = :id");
         $this->verifyIfFilmAlreadyExist = $this->bdd->prepare("SELECT * FROM `Film`WHERE id = :id");
-        $this->delete_film = $this->bdd->prepare("DELETE * FROM `Film` WHERE id = :id");
+        $this->verifyIfFilmAlreadyExistByName = $this->bdd->prepare("SELECT * FROM `Film`WHERE nom = :nom");
+        $this->delete_film = $this->bdd->prepare("DELETE  FROM `Film` WHERE id = :id");
     }
 
     // Renvoit True si le film existe
@@ -58,9 +60,32 @@ class FilmModel
             }
         }
     }
-    public function add_film(string $nom, DateTime $date, string $genre, string $realisateur, int $duree)
+
+    // Retourne True si le film existe
+    public function verifyIfFilmAlreadyExistByName(string $nom): bool
     {
-        $filmAlreadyExist = $this->verifyIfFilmAlreadyExist($nom);
+        if (strlen($nom) <= 0) {
+            console("Le nom ne peut pas etre inférieur ou égal à 0");
+            exit();
+        }
+        try {
+            $this->verifyIfFilmAlreadyExistByName->bindValue(":nom", $nom);
+            $this->verifyIfFilmAlreadyExistByName->execute();
+            $result = $this->verifyIfFilmAlreadyExistByName->fetch();
+        } catch (PDOException $e) {
+            console("Erreur SQL lors de la vérification d'existence d'un film par nom : " . $e->getMessage());
+            exit();
+        }
+        if (!$result) {
+            return false;
+        } else {
+            return true;
+        }
+
+    }
+    public function add_film(string $nom, DateTime $date, GENRE_ALLOWED $genre, string $realisateur, int $duree)
+    {
+        $filmAlreadyExist = $this->verifyIfFilmAlreadyExistByName($nom);
         if ($filmAlreadyExist === true) {
             console("Un film avec ce nom existe deja dans la BDD");
             exit();
@@ -68,13 +93,13 @@ class FilmModel
             try {
                 $this->add_film->bindValue(":nom", $nom);
                 $this->add_film->bindValue(":date", $date->format('Y-m-d'));
-                $this->add_film->bindValue(":genre", $genre);
+                $this->add_film->bindValue(":genre", $genre->value);
                 $this->add_film->bindValue(":realisateur", $realisateur);
                 $this->add_film->bindValue(":duree", $duree);
                 $this->add_film->execute();
 
                 // Message de succès
-                console("Film ajouté avec succès : $nom ($genre, $duree min)");
+                console("Film ajouté avec succès : $nom ($genre->value, $duree min)");
             } catch (PDOException $e) {
                 // Message d'erreur
                 console("Erreur lors de l'ajout d'un film dans la BDD : " . $e->getMessage());
@@ -96,7 +121,7 @@ class FilmModel
 
         if (count($raw_films) <= 0) {
             console("Aucun film présent dans la BDD");
-            exit();
+            return [];
         } else {
             // Formater la réponse dans un tableau
             $filmEntity = [];
@@ -138,13 +163,19 @@ class FilmModel
                 console("Aucun film trouvé avec cet id");
                 exit();
             } else {
+                try {
+                    $filmDate = new DateTime($rawFilm['date']);
+                } catch (Error $e) {
+                    console("Erreur lors de la conversion de la date brute en DateTime : " . $e->getMessage());
+                    exit();
+                }
                 $film = new FilmEntity(
-                    $rawFilm['id'],
                     $rawFilm['nom'],
-                    $rawFilm['date'],
-                    $rawFilm['genre'],
+                    $filmDate,
+                    GENRE_ALLOWED::from($rawFilm['genre']),
                     $rawFilm['realisateur'],
-                    $rawFilm['duree']
+                    $rawFilm['duree'],
+                    $rawFilm['id']
                 );
                 return $film;
             }
