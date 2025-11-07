@@ -5,7 +5,7 @@ class Router {
     public static function getController(string $controllerName) {
         switch ($controllerName) {
             // Route /film
-            case 'film' :
+            case "":
                 return new FilmController();
         }
     }
