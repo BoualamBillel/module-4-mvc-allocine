@@ -2,11 +2,17 @@
 require_once(__DIR__ . "/../models/FilmModel.php");
 class FilmController
 {
-
+    public function view(string $method, array $params = []){
+        try {
+            call_user_func([$this, $method], $params);
+        } catch (Error $e) {
+            console($e->getMessage());
+        }
+    }   
     public function index()
     {
         $filmModel = new FilmModel();
-        $films = $filmModel->get_all_films(10);
+        $films = $filmModel->get_all_films();
 
         require_once(__DIR__ . "/../views/films.php");
     }
