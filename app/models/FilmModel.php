@@ -32,23 +32,23 @@ class FilmModel
         $this->add_film = $this->bdd->prepare("INSERT INTO `Film`(nom, date, genre,  realisateur, duree) VALUES (:nom, :date, :genre, :realisateur, :duree)");
         $this->get_all_films = $this->bdd->prepare("SELECT * FROM `Film`");
         $this->get_film_by_id = $this->bdd->prepare("SELECT * FROM `Film`WHERE id = :id");
-        $this->verifyIfFilmAlreadyExist = $this->bdd->prepare("SELECT * FROM `Film`WHERE nom = :nom");
+        $this->verifyIfFilmAlreadyExist = $this->bdd->prepare("SELECT * FROM `Film`WHERE id = :id");
         $this->delete_film = $this->bdd->prepare("DELETE * FROM `Film` WHERE id = :id");
     }
 
     // Renvoit True si le film existe deja
-    public function verifyIfFilmAlreadyExist($nom): bool
+    public function verifyIfFilmAlreadyExist(int $id): bool
     {
-        if (strlen($nom) <= 0) {
-            console("La recherche ne peut etre vide");
+        if ($id <= 0) {
+            console("L'id du film recherché ne peut pas etre inférieur ou égal à 0");
             exit();
         } else {
             try {
-                $this->verifyIfFilmAlreadyExist->bindValue(":nom", $nom);
+                $this->verifyIfFilmAlreadyExist->bindValue(":id", $id);
                 $this->verifyIfFilmAlreadyExist->execute();
                 $result = $this->verifyIfFilmAlreadyExist->fetch();
             } catch (PDOException $e) {
-                console("Erreur lors de la recherche de film pae nom");
+                console("Erreur lors de la recherche de film par id");
                 exit();
             }
             if ($result === false) {
