@@ -1,8 +1,45 @@
 <?php
+require_once(__DIR__ . "/../core/Console.php");
+require_once(__DIR__ . "/../core/Database.php");
+require_once(__DIR__ . "/FilmModel.php");
 
 class DiffusionModel
 {
+    private PDO $bdd;
+    private PDOStatement $addDiffusion;
 
+    public function __construct()
+    {
+        $this->bdd = Database::getInstance();
+        // Préparation des requetes préparés
+        $this->addDiffusion = $this->bdd->prepare("INSERT INTO `Diffusion` (film_id, date_diffusion) VALUES (:film_id, :date_diffusion");
+    }
+
+    public function addDiffusion(int $film_id, DateTime|string $diffusion_date)
+    {
+        // TODO Verifier si le film existe d'abord
+        $filmModel = new FilmModel();
+        if ($filmModel->verifyIfFilmAlreadyExist($film_id) === false) {
+            console("Le film avec l'id $film_id n'existe pas !");
+            exit();
+        }
+        if ($film_id <= 0) {
+            console("Le filmId ne pas etre inférieur ou égal à 0");
+            exit();
+        }
+        if (is_string($diffusion_date)) {
+            try {
+                $date = new DateTime($diffusion_date);
+            } catch (Error $e) {
+                console("Erreur lors de la conversion de la date de diffusion en DateTime");
+                exit();
+            }
+        }
+        $this->addDiffusion->execute([
+            ":film_id" => $film_id,
+            ":date_diffusion" => $date->format("Y-m-d H:i:s")
+        ]);
+    }
 }
 
 class DiffusionEntity
@@ -55,7 +92,8 @@ class DiffusionEntity
         $this->dateDiffusion = $date;
     }
 
-    public function __construct(int $filmId, DateTime $dateDiffusion, ?int $id) {
+    public function __construct(int $filmId, DateTime $dateDiffusion, ?int $id)
+    {
         $this->id = $id;
         $this->setFilmId($filmId);
         $this->setDiffusionDate($dateDiffusion);
