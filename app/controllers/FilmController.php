@@ -14,7 +14,7 @@ class FilmController
         $filmModel = new FilmModel();
         $films = $filmModel->get_all_films();
 
-        require_once(__DIR__ . "/../views/films.php");
+        require_once(__DIR__ . "/../views/index.php");
     }
     public function show($params = [])
     {
