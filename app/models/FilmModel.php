@@ -3,16 +3,16 @@ require_once(__DIR__ . "/../core/Console.php");
 require_once(__DIR__ . "/../core/Database.php");
 
 // Creation du type ENUM
-enum GENRE_ALLOWED
+enum GENRE_ALLOWED: string
 {
-    case Action;
-    case Comedie;
-    case Drama;
-    case Fantaisie;
-    case Horreur;
-    case Documentaire;
-    case ScienceFiction;
-    case Autre;
+    case Action = "Action";
+    case Comedie = "Comedie";
+    case Drama = "Drama";
+    case Fantaisie = "Fantaisie";
+    case Horreur = "Horreur";
+    case Documentaire = "Documentaire";
+    case ScienceFiction = "ScienceFiction";
+    case Autre = "Autre";
 }
 class FilmModel
 {
@@ -30,7 +30,7 @@ class FilmModel
         $this->bdd = Database::getInstance();
         // Préparations des requetes préparés
         $this->add_film = $this->bdd->prepare("INSERT INTO `Film`(nom, date, genre,  realisateur, duree) VALUES (:nom, :date, :genre, :realisateur, :duree)");
-        $this->get_all_films = $this->bdd->prepare("SELECT * FROM `Film LIMIT :limit");
+        $this->get_all_films = $this->bdd->prepare("SELECT * FROM `Film`");
         $this->get_film_by_id = $this->bdd->prepare("SELECT * FROM `Film`WHERE id = :id");
         $this->verifyIfFilmAlreadyExist = $this->bdd->prepare("SELECT * FROM `Film`WHERE nom = :nom");
         $this->delete_film = $this->bdd->prepare("DELETE * FROM `Film` WHERE id = :id");
@@ -83,15 +83,10 @@ class FilmModel
         }
     }
 
-    public function get_all_films(int $limit): array
+    public function get_all_films(): array
     {
-        if ($limit <= 0) {
-            console("La limite de récupération de films présent dans la BDD ne peut pas etre égale ou inférieure à 0");
-            exit();
-        }
 
         try {
-            $this->get_all_films->bindValue(":limit", $limit);
             $this->get_all_films->execute();
             $raw_films = $this->get_all_films->fetchAll();
         } catch (PDOException $e) {
@@ -106,15 +101,21 @@ class FilmModel
             // Formater la réponse dans un tableau
             $filmEntity = [];
             foreach ($raw_films as $film) {
+                // Conversion de la date en type DateTime
+                $filmDateTime = new DateTime($film["date"]);
+                $genre_str = GENRE_ALLOWED::from($film["genre"]);
+                console($genre_str);
+
                 $filmEntity[] = new FilmEntity(
-                    $film['id'],
                     $film['nom'],
-                    $film['date'],
-                    $film['genre'],
+                    $filmDateTime,
+                    $genre_str,
                     $film['realisateur'],
-                    $film['duree']
+                    $film['duree'],
+                    $film['id']
                 );
             }
+
             return $filmEntity;
         }
     }
@@ -150,7 +151,8 @@ class FilmModel
         }
     }
 
-    public function delete_film($id) {
+    public function delete_film($id)
+    {
         if ($id <= 0) {
             console("L'id ne peut pas etre inférieur ou égal à 0");
             exit();
@@ -270,7 +272,7 @@ class FilmEntity
         }
     }
 
-    public function __construct(?int $id = null, string $nom, DateTime $dateDeSortie, GENRE_ALLOWED $genre, string $realisateur, int $duree)
+    public function __construct(string $nom, DateTime $dateDeSortie, GENRE_ALLOWED $genre, string $realisateur, int $duree, ?int $id = null)
     {
         $this->id = $id;
         $this->setNom($nom);
