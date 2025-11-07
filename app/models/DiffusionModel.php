@@ -17,7 +17,7 @@ class DiffusionModel
 
     public function addDiffusion(int $film_id, DateTime|string $diffusion_date)
     {
-        // TODO Verifier si le film existe d'abord
+
         $filmModel = new FilmModel();
         if ($filmModel->verifyIfFilmAlreadyExist($film_id) === false) {
             console("Le film avec l'id $film_id n'existe pas !");
@@ -27,14 +27,15 @@ class DiffusionModel
             console("Le filmId ne pas etre inférieur ou égal à 0");
             exit();
         }
-        if (is_string($diffusion_date)) {
             try {
-                $date = new DateTime($diffusion_date);
-            } catch (Error $e) {
+                $date = $diffusion_date instanceof DateTime
+                    ? $diffusion_date
+                    : new DateTime($diffusion_date);
+            } catch (Exception $e) {
                 console("Erreur lors de la conversion de la date de diffusion en DateTime");
                 exit();
             }
-        }
+        
         $this->addDiffusion->execute([
             ":film_id" => $film_id,
             ":date_diffusion" => $date->format("Y-m-d H:i:s")
