@@ -45,6 +45,33 @@ class FilmController
 
         header("Content-type: application/json");
         echo json_encode($filmsArray);
+    }
 
+    public function jsonById($params = []) {
+        $id = $params[0];
+        
+        $diffusionModel = new DiffusionModel();
+        $filmModel = new FilmModel();
+
+        $film = $filmModel->get_film_by_id($id);
+        $diffusion = $diffusionModel->getDiffusionInfo($id);
+        $filmObject = [
+                'nom' => $film->getNom(),
+                'genre' => $film->getGenre()->value,
+                'duree' => $film->getDuree(),
+                'realisateur' => $film->getRealisateur(),
+                'dateDeSortie' => $film->getDateDeSortie()->format("d/m/Y"),
+
+                'dateDiffusion' => array_map(function($d){
+                    return [
+                        'id' => $d['id'],
+                        'date_diffusion' => $d['date_diffusion']
+                    ];
+                },$diffusion)
+
+            ];
+
+        header("Content-type: application/json");
+        echo json_encode($filmObject);
     }
 }
