@@ -6,6 +6,7 @@ class Router {
         switch ($controllerName) {
             // Route /film
             case "":
+            case "film":
                 return new FilmController();
         }
     }
