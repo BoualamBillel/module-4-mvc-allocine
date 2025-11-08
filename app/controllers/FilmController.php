@@ -28,7 +28,7 @@ class FilmController
         require_once(__DIR__ . "/../views/film.php");
     }
 
-    public function jsonall($params = [])
+    public function getAll($params = [])
     {
 
         $filmModel = new FilmModel();
@@ -47,7 +47,7 @@ class FilmController
         echo json_encode($filmsArray);
     }
 
-    public function jsonById($params = []) {
+    public function get($params = []) {
         $id = $params[0];
         
         $diffusionModel = new DiffusionModel();
