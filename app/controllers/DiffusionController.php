@@ -34,4 +34,12 @@ class DiffusionController
         
         require_once(__DIR__ . "/../views/ajouter_diffusion.php");
     }
+    public function deleteDiffusion($params = []) {
+        $id = $params[0];
+        $diffusionModel = new DiffusionModel();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $diffusionModel->deleteDiffusion($id);
+            header("Location: /diffusion/toutes_diffusions");
+        }
+    }
 }

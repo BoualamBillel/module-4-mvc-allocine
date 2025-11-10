@@ -14,6 +14,13 @@ ob_start();
 							<?= htmlspecialchars($diff['film_nom']) ?>
 						</span>
 						<span class="font-semibold">Date :</span> <?= date('d/m/Y H:i', strtotime($diff['date_diffusion'])) ?>
+						<form action="/diffusion/deleteDiffusion/<?= $diff['id'] ?>" method="post" onsubmit="return confirm('Voulez-vous vraiment supprimer cette séance ?');" class="inline-block">
+							<button type="submit" class="p-2 bg-transparent hover:bg-red-100 rounded transition" title="Supprimer la séance">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-red-600 hover:text-red-800">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M9 7V5a3 3 0 013-3v0a3 3 0 013 3v2m-7 0h8m-8 0v12a2 2 0 002 2h4a2 2 0 002-2V7m-8 0h8" />
+								</svg>
+							</button>
+						</form>
 					</li>
 				<?php endforeach; ?>
 			</ul>
