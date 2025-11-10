@@ -7,8 +7,7 @@
             <nav class="main-nav">
                 <ul>
                     <li><a href="/">Accueil</a></li>
-                    <li><a href="/film/index">Films</a></li>
-                    <li><a href="/diffusion/index">Diffusions</a></li>
+                    <li><a href="/film/ajouter_film">Ajouter un film</a></li>
                 </ul>
             </nav>
         </div>

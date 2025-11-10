@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS Film (
     id INT AUTO_INCREMENT PRIMARY KEY,
     `nom` VARCHAR(255) NOT NULL,
     `date` DATE NOT NULL,
-    `genre` ENUM('Action', 'Comedie', 'Drama', 'Fantaisie', 'Horreur','Documentaire', 'Science-Fiction', 'Autre') NOT NULL,
+    `genre` ENUM('Action', 'Comedie', 'Drama', 'Fantaisie', 'Horreur','Documentaire', 'ScienceFiction', 'Autre') NOT NULL,
     `realisateur` VARCHAR(255) NOT NULL,
     `duree` INT NOT NULL
 );

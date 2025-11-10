@@ -155,6 +155,7 @@ class FilmModel
                 $this->get_film_by_id->bindValue(":id", $id);
                 $this->get_film_by_id->execute();
                 $rawFilm = $this->get_film_by_id->fetch();
+                console("Info du film " . $id . " récupérer avec succès !");
             } catch (PDOException $e) {
                 console("Erreur SQL lors de la récupération du film par ID : " . $e->getMessage());
                 exit();
