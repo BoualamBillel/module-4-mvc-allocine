@@ -6,6 +6,7 @@ require_once(__DIR__ . "/FilmModel.php");
 class DiffusionModel
 {
     private PDO $bdd;
+    private PDOStatement $getAllDiffusion;
     private PDOStatement $addDiffusion;
     private PDOStatement $verifyIfDiffusionExist;
     private PDOStatement $deleteDiffusion;
@@ -14,6 +15,7 @@ class DiffusionModel
     {
         $this->bdd = Database::getInstance();
         // Préparation des requetes préparés
+    $this->getAllDiffusion = $this->bdd->prepare("SELECT Diffusion.*, Film.nom AS film_nom FROM Diffusion JOIN Film ON Diffusion.film_id = Film.id");
         $this->addDiffusion = $this->bdd->prepare("INSERT INTO `Diffusion` (film_id, date_diffusion) VALUES (:film_id, :date_diffusion)");
         $this->verifyIfDiffusionExist = $this->bdd->prepare("SELECT * FROM `Diffusion` WHERE id = :id");
         $this->deleteDiffusion = $this->bdd->prepare("DELETE  FROM `Diffusion` WHERE id = :id");
@@ -21,6 +23,22 @@ class DiffusionModel
 
     }
 
+    public function getAllDiffusion()
+    {
+        try {
+            $this->getAllDiffusion->execute();
+            $result = $this->getAllDiffusion->fetchAll();
+        } catch (PDOException $e) {
+            console("Erreur SQL lors de la récupération de toutes les diffusions : " . $e);
+            exit();
+        }
+        if (!$result) {
+            console("Aucune diffusion trouvée");
+            return [];
+        } else {
+            return $result;
+        }
+    }
     public function addDiffusion(int $film_id, DateTime|string $diffusion_date)
     {
 
@@ -85,8 +103,9 @@ class DiffusionModel
         }
     }
 
-    public function getDiffusionInfo($film_id) {
-         if ($film_id <= 0) {
+    public function getDiffusionInfo($film_id)
+    {
+        if ($film_id <= 0) {
             console("L'id de diffusion ne peut pas inférieur ou égal à 0");
             exit();
         }
@@ -94,9 +113,9 @@ class DiffusionModel
             $this->getDiffusionInfo->execute([
                 ":film_id" => $film_id
             ]);
-           $result = $this->getDiffusionInfo->fetchAll();
+            $result = $this->getDiffusionInfo->fetchAll();
         } catch (PDOException $e) {
-            console("Erreur SQL lors de la récupération des infos de diffusion du film ID = ". $film_id . " : " . $e->getMessage());
+            console("Erreur SQL lors de la récupération des infos de diffusion du film ID = " . $film_id . " : " . $e->getMessage());
             exit();
         }
         if (!$result) {
