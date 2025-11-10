@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__ . "/../models/FilmModel.php");
+require_once(__DIR__ . "/../models/DiffusionModel.php");
 class FilmController
 {
     public function view(string $method, array $params = [])
@@ -48,6 +49,7 @@ class FilmController
     }
 
     public function get($params = []) {
+        console("/film/get/:id");
         $id = $params[0];
         
         $diffusionModel = new DiffusionModel();
