@@ -204,6 +204,18 @@ class FilmModel
 
 class FilmEntity
 {
+    function __toString(){
+        $rawFilm = [
+            "id" => $this->id,
+            "nom" => $this->nom,
+            "genre" => $this->genre->value,
+            "duree" => $this->duree,
+            "realisateur" => $this->realisateur,
+            'dateDeSortie' => $this->date_sortie->format("Y-m-d")
+
+        ];
+        return json_encode($rawFilm);
+    }
     private ?int $id = null;
     private string $nom;
     private DateTime $date_sortie;
