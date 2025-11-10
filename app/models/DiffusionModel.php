@@ -17,7 +17,7 @@ class DiffusionModel
         $this->addDiffusion = $this->bdd->prepare("INSERT INTO `Diffusion` (film_id, date_diffusion) VALUES (:film_id, :date_diffusion)");
         $this->verifyIfDiffusionExist = $this->bdd->prepare("SELECT * FROM `Diffusion` WHERE id = :id");
         $this->deleteDiffusion = $this->bdd->prepare("DELETE  FROM `Diffusion` WHERE id = :id");
-        $this->getDiffusionInfo = $this->bdd->prepare("SELECT * `Diffusion` WHERE film_id = :film_id");
+        $this->getDiffusionInfo = $this->bdd->prepare("SELECT * FROM `Diffusion` WHERE film_id = :film_id");
 
     }
 
